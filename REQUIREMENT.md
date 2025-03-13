@@ -60,11 +60,25 @@
 
 ### 해결
 
+#### 위치 : [TodoControllerTest](src/test/java/org/example/expert/domain/todo/controller/TodoControllerTest.java)
+
+- 테스트에서 원하는 것은 400 BAD_REQUEST가 발생하는 것을 원함.
+- 따라서 status().isOk()부분을 status().is4xxClientError()로 변경함.
+- 또한 value값을 OK가 아닌 BAD_REQUEST로 변경함.
+
+---
+
+## Lv1-4요구사항 - (전탁 작성 2025.03.12)
+
+### 컨트롤러 테스트의 이해
+
+- 테스트 패키지 org.example.expert.domain.todo.controller의 todo_단건_조회_시_todo가_존재하지_않아_예외가_발생한다() 테스트가 실패하고 있으므로, 수정하여 정상 동작하도록 해야 한다.
+
+### 해결
+
 #### 위치 : [TodoController](src/main/java/org/example/expert/domain/todo/controller/TodoController.java), [TodoService](src/main/java/org/example/expert/domain/todo/service/TodoService.java), [TodoRepository](src/main/java/org/example/expert/domain/todo/repository/TodoRepository.java)
 
 - TodoController에 RequestParam으로 weather, start, end 값을 추가함.
 - 해당 값들은 required = false로 입력되지 않으면 null로 처리 됨.
 - TodoService의 getTodos에서 start와 end에 대한 값을 LocalDateTime으로 변환하고 todoRepository에 weather, startDay, endDay 값을 파라미터로 사용하여 요청
 - TodoRepository에서 JPQL 쿼리를 새로 생성하여 findAllByCondition이라는 이름을 통해 반환.
-
----
