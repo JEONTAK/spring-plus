@@ -19,6 +19,7 @@ public class AdminAccessLoggingAspect {
 
     private final HttpServletRequest request;
 
+    //Lv1-5
     @Before("execution(* org.example.expert.domain.user.controller.UserAdminController.changeUserRole(..))")
     public void logBeforeChangeUserRole(JoinPoint joinPoint) {
         String userId = String.valueOf(request.getAttribute("userId"));
