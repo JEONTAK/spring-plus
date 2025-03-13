@@ -127,3 +127,27 @@
 #### 위치 : [CommentRepository](src/main/java/org/example/expert/domain/comment/repository/CommentRepository.java)
 
 - 기존 findByTodoIdWithUser에서는 유저의 정보를 같이 가져오지 않았기 때문에, FETCH를 추가하여 유저의 정보들도 같이 가져올 수 있도록 수정함.
+
+---
+
+## Lv2-8요구사항 - (전탁 작성 2025.03.12)
+
+### QueryDSL
+
+- JPQL로 작성된 findByIdWithUser(TodoService)를 QueryDSL로 변경해야 한다.
+- N + 1 문제가 발생해서는 안된다.
+
+### 해결
+
+#### 위치 : [TodoRepositoryCustom](src/main/java/org/example/expert/domain/todo/repository/TodoRepositoryCustom.java), [TodoRepositoryCustomImpl](src/main/java/org/example/expert/domain/todo/repository/TodoRepositoryCustomImpl.java)
+
+- QueryDSL을 사용하기 위해 gradle에 의존성을 추가.
+- QueryDSL을 사용하기위 해 TodoRepositoryCustom 인터페이스 추가 생성하여 TodoRepository에 implements 함
+- TodoRepositoryCustom Interface를 정의한 TodoRepositoryCustomImpl class 생성하여 findByIdWithUser 메서드 작성
+- findByIdWithUser는 todoId에 맞는 할 일과 해당 유저의 값을 반환.
+- 따라서 Q객체로 todo와 user를 생성한 후, queryFactory를 통해 query 생성
+  - 쿼리는 다음과 같음.
+    - selectFrom을 통해 todo로 부터 값을 찾겠다 선언
+    - leftJoin을 통해 user 정보를 join하여 찾겠다 선언. 이때 fetchJoin을 통해 값을 가져올 수 있도록 설정
+    - where문을 통해 todo.id가 todoId와 같은 todo를 찾음
+    - fetchOne()을 통해 단일 객체를 가져옴.
