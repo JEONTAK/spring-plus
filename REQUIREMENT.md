@@ -151,3 +151,32 @@
     - leftJoin을 통해 user 정보를 join하여 찾겠다 선언. 이때 fetchJoin을 통해 값을 가져올 수 있도록 설정
     - where문을 통해 todo.id가 todoId와 같은 todo를 찾음
     - fetchOne()을 통해 단일 객체를 가져옴.
+
+---
+
+
+## Lv2-9요구사항 - (전탁 작성 2025.03.12)
+
+### Spring Security
+
+- 기존 Filter와 Argument Resolver를 사용하던 코드를 Spring Security로 변경해야 한다.
+  - 접근 권한 및 유저 권한 기능은 그대로 유지하여야 한다.
+  - 권한은 Spring Security의 기능을 사용하여야 한다.
+- JWT는 그대로 사용하여야 한다.
+
+### 해결
+
+#### 위치 : [UserRole](src/main/java/org/example/expert/domain/user/enums/UserRole.java), [User](src/main/java/org/example/expert/domain/user/entity/User.java), [UserAdminController](src/main/java/org/example/expert/domain/user/controller/UserAdminController.java), [AuthUser](src/main/java/org/example/expert/domain/common/dto/AuthUser.java), [JWTAuthenticationToken](src/main/java/org/example/expert/config/JWTAuthenticationToken.java), [JWTAuthenticationFilter](src/main/java/org/example/expert/config/JwtAuthenticationFilter.java), [SecurityConfig](src/main/java/org/example/expert/config/SecurityConfig.java)
+
+- 먼저 UserRole을 Spring Security에 맞게 변경해주었다.
+  - 앞에 prefix로 ROLE_을 붙여 사용할 수 있도록 변경했다.
+- UserAdminController는 Admin만 사용가능하여야 하기 때문에, @Secured(UserRole.Authority.ADMIN)을 사용하여 ADMIN인 유저만 접근 가능하도록 설정해준다.
+- AuthUser에서는 기존 UserRole을 그대로 가져와 사용할 수 없다. Spring Security에서는 역할이 여러개 존재할 수 있다는 가정 하에 코드를 구성해 놓았기 때문에, Collection 형태로 설정했기 때문이다. 따라서 List 형태로 userRole을 반환할 수 있도록 변경해 주었다.
+- Security 보안을 통과하려면 SecurityContext에 AbstractAuthenticationToken을 set해주어야 하기 때문에,JWTAuthenticationToken을 생성하여 관리한다.
+  - 해당 class에서 authUser 정보를 가지고 setAuthenticated를 해준다.
+- Security의 보안을 통과하기 위하여 기존 JwtFilter에 추가로 코드를 넣었다.
+  - SecurityContextHolder.getContext().setAuthentication(authenticationToken)이 없을 경우 setAuthentication해준다.
+  - setAuthentication에서는 AuthUser를 생성하여 authenticationToken을 만들고, 해당 토큰을 사용하여 setAuthentication 해준다.
+- 위 Spring Security에 대한 필터를 등록하기 위하여 SecurityConfig 클래스를 생성하여 Bean으로 등록해줄 수 있도록 한다. 
+
+---
