@@ -60,7 +60,7 @@
 
 ### 해결
 
-#### 위치 : [TodoControllerTest](src/test/java/org/example/expert/domain/todo/controller/TodoControllerTest.java)
+#### 위치 : [TodoController](src/main/java/org/example/expert/domain/todo/controller/TodoController.java), [TodoService](src/main/java/org/example/expert/domain/todo/service/TodoService.java), [TodoRepository](src/main/java/org/example/expert/domain/todo/repository/TodoRepository.java)
 
 - 테스트에서 원하는 것은 400 BAD_REQUEST가 발생하는 것을 원함.
 - 따라서 status().isOk()부분을 status().is4xxClientError()로 변경함.
@@ -76,9 +76,25 @@
 
 ### 해결
 
-#### 위치 : [TodoController](src/main/java/org/example/expert/domain/todo/controller/TodoController.java), [TodoService](src/main/java/org/example/expert/domain/todo/service/TodoService.java), [TodoRepository](src/main/java/org/example/expert/domain/todo/repository/TodoRepository.java)
+#### 위치 : [TodoControllerTest](src/test/java/org/example/expert/domain/todo/controller/TodoControllerTest.java)
 
 - TodoController에 RequestParam으로 weather, start, end 값을 추가함.
 - 해당 값들은 required = false로 입력되지 않으면 null로 처리 됨.
 - TodoService의 getTodos에서 start와 end에 대한 값을 LocalDateTime으로 변환하고 todoRepository에 weather, startDay, endDay 값을 파라미터로 사용하여 요청
 - TodoRepository에서 JPQL 쿼리를 새로 생성하여 findAllByCondition이라는 이름을 통해 반환.
+
+---
+
+## Lv1-5요구사항 - (전탁 작성 2025.03.12)
+
+### AOP의 이해
+
+- AOP는 UserAdminController 클래스의 changeUserRole() 메서드 실행 전 동작해야 한다.
+- AdminAccessLoggingAspect 클래스에 있는 AOP를 수정하여 위 요구사항을 충족해야 한다.
+
+### 해결
+
+#### 위치 : [AdminAccessLoggingAspect](src/main/java/org/example/expert/aop/AdminAccessLoggingAspect.java)
+
+- AdminAccessLoggingAspect 부분에 @After 를 @Before로 바꿔 메서드 실행전 동작할 수 있도록 수정.
+- UserController의 getUser 메서드가 아닌, UserAdminController의 changeUserRole 메서드가 실행될 때 동작할 수 있도록 수정.
