@@ -113,3 +113,17 @@
 #### 위치 : [Todo](src/main/java/org/example/expert/domain/todo/entity/Todo.java)
 
 - managers에서 기존 @OneToMany(mappedBy = "todo") 를 @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL)로 수정하여 manager까지 함께 영속화 시키도록 수정함.
+
+---
+
+## Lv2-7요구사항 - (전탁 작성 2025.03.12)
+
+### N + 1
+
+- CommentController 클래스의 getComments() API를 호출할 때 N + 1 문제가 발생하고 있으므로 수정해야 한다.
+
+### 해결
+
+#### 위치 : [CommentRepository](src/main/java/org/example/expert/domain/comment/repository/CommentRepository.java)
+
+- 기존 findByTodoIdWithUser에서는 유저의 정보를 같이 가져오지 않았기 때문에, FETCH를 추가하여 유저의 정보들도 같이 가져올 수 있도록 수정함.
