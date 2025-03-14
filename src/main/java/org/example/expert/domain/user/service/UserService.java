@@ -1,9 +1,11 @@
 package org.example.expert.domain.user.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.user.dto.request.UserChangePasswordRequest;
 import org.example.expert.domain.user.dto.response.UserResponse;
+import org.example.expert.domain.user.dto.response.UserSearchResponse;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,11 +43,18 @@ public class UserService {
         user.changePassword(passwordEncoder.encode(userChangePasswordRequest.getNewPassword()));
     }
 
+
     private static void validateNewPassword(UserChangePasswordRequest userChangePasswordRequest) {
         if (userChangePasswordRequest.getNewPassword().length() < 8 ||
                 !userChangePasswordRequest.getNewPassword().matches(".*\\d.*") ||
                 !userChangePasswordRequest.getNewPassword().matches(".*[A-Z].*")) {
             throw new InvalidRequestException("새 비밀번호는 8자 이상이어야 하고, 숫자와 대문자를 포함해야 합니다.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserSearchResponse> findUsersByNickname(String nickname) {
+        return userRepository.findByNickname(nickname).stream()
+                .map(user -> new UserSearchResponse(user.getId(), user.getEmail(), user.getNickname())).toList();
     }
 }

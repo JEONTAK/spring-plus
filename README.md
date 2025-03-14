@@ -213,16 +213,17 @@
 #### 위치 : [TodoController](src/main/java/org/example/expert/domain/todo/controller/TodoController.java), [TodoService](src/main/java/org/example/expert/domain/todo/service/TodoService.java), [TodoSearchResponse](src/main/java/org/example/expert/domain/todo/dto/response/TodoSearchResponse.java), [TodoRepositoryCustomImpl](src/main/java/org/example/expert/domain/todo/repository/TodoRepositoryCustomImpl.java)
 
 - TodoController에 /todos/querydsl 이라는 새 API를 생성한다.
-  - 해당 API에는 쿼리파라미터로 page, size, title, createdAt, nickname이 들어가고, title createdAt, nickname은 없으면 null로 처리되도록 구성하였다.
+    - 해당 API에는 쿼리파라미터로 page, size, title, createdAt, nickname이 들어가고, title createdAt, nickname은 없으면 null로 처리되도록 구성하였다.
 - TodoService에도 위 API에 대응되는 메서드를 생성해주었다.
-  - Page형식의 TodoSearchResponse DTO 객체를 반환하는 메서드를 생성하고, todoRepository에 데이터들을 보낸 후 조건에 맞는 데이터를 응답받아 반환한다.
+    - Page형식의 TodoSearchResponse DTO 객체를 반환하는 메서드를 생성하고, todoRepository에 데이터들을 보낸 후 조건에 맞는 데이터를 응답받아 반환한다.
 - TodoSearchResponse에는 todo의 id, title, 담당자 수, 댓글 수를 담을 수 있도록 구성하였다.
 - TodoRepositoryCustomImpl에서 findAllUsingQueryDSL이라는 메서드를 생성해 조건에 따라 쿼리를 처리할 수 있도록 구현 하였다.
-  - 조건에 따른 쿼리를 추가 위한 빌더를 생성하고, 존재하는 조건들을 빌더에 추가해준다.
-  - Projections을 통해 필요한 값들만 가져올 수 있도록 구현하였다.
-  - 조건에 맞는 데이터를 PageImpl을 통해 Page 형식의 객체로 반환해준다.
+    - 조건에 따른 쿼리를 추가 위한 빌더를 생성하고, 존재하는 조건들을 빌더에 추가해준다.
+    - Projections을 통해 필요한 값들만 가져올 수 있도록 구현하였다.
+    - 조건에 맞는 데이터를 PageImpl을 통해 Page 형식의 객체로 반환해준다.
 
 **추가사항**
+
 - 이전 Spring Security에서 Controller의 메서드들에서, @Auth에 해당하는 부분을 @AuthenticationPrincipal로 바꾸지 않아 에러가 났었다.
 - 따라서 이번 레벨에서 해당 부분을 수정해 정상작동 할 수 있도록 구현하였다.
 
@@ -233,24 +234,108 @@
 ### Transaction 심화
 
 - 매니저 등록 요청을 기록하는 로그 테이블을 만들어야 한다.
-  - DB 테이블 명은 log로 한다.
+    - DB 테이블 명은 log로 한다.
 - 매니저 등록과는 별개로 로그 테이블에는 항상 요청 로그가 남아야 한다.
-  - 매니저 등록이 실패하더라도 로그는 반드시 저장되어야 한다.
-  - 로그 생성 시간은 반드시 필요하다.
-  - 그 외 로그에 들어가는 내용은 원하는 정보를 자유롭게 넣는다.
-  - 본인이 구성한 정보
-    - 로그 내용
-    - 로그 요청 시각
-    - 성공 실패 여부
+    - 매니저 등록이 실패하더라도 로그는 반드시 저장되어야 한다.
+    - 로그 생성 시간은 반드시 필요하다.
+    - 그 외 로그에 들어가는 내용은 원하는 정보를 자유롭게 넣는다.
+    - 본인이 구성한 정보
+        - 로그 내용
+        - 로그 요청 시각
+        - 성공 실패 여부
 
 ### 해결
 
 #### 위치 : [Log](src/main/java/org/example/expert/domain/log/entity/Log.java), [LogService](src/main/java/org/example/expert/domain/log/service/LogService.java), [ManagerService](src/main/java/org/example/expert/domain/manager/service/ManagerService.java)
 
 - Log를 테이블에 저장하기 위하여 엔티티를 생성한다.
-  - Log 엔티티에는 id, url, 요청 유저 id, 등록 대상 유저 id, 할일 id, message, 상태, 요청 시각이 존재한다.
+    - Log 엔티티에는 id, url, 요청 유저 id, 등록 대상 유저 id, 할일 id, message, 상태, 요청 시각이 존재한다.
 
 - LogService에서 @Transactional(propagation = Propagation.REQUIRES_NEW)를 통해 매니저 등록 Transaction이 실패하더라도 등록이 될 수 있게끔 구현하였다.
 - ManagerService에서 try catch 문을 통해 매니저 등록에 성공할 시 성공 상태의 로그를 저장하고, 실패시 실패 상태의 로그를 저장한다.
 
 ![img.png](img/Lv3-11.png)
+
+---
+
+## 1️⃣2️⃣ Lv3-12요구사항 - (전탁 작성 2025.03.14)
+
+### AWS 활용
+
+- EC2, RDS, S3를 사용하여 프로젝트를 관리하고 배포한다.
+- 각 AWS 서비스 간 보안 그룹을 적절히 구성하여 보안에 신경 써야 한다.
+- **공통사항**
+    - 각 AWS 서비스의 콘솔에서 내가 만든 서비스들의 설정 화면을 캡처하여 README.md에 첨부할 것
+- 12-1. EC2
+    - EC2 인스턴스에서 어플리케이션 실행
+        - Elastic IP를 설정해 외부에서도 접속할 수 있도록 함.
+        - 서버 접속 및 Live 상태를 확인할 수 있는 health check API를 만들고 README.md에 기재할 것
+            - health check API는 누구나 접속 가능 해야함.
+            - API path는 마음대로
+
+- 12-2. RDS
+    - RDS에 데이터베이스를 구축하고, EC2에서 실행되는 어플리케이션에 연결
+
+- 12-3. S3
+    - S3 버킷을 생성하여 유저의 프로필 이미지 업로드 및 관리 API를 구현
+
+### API
+
+| HTTP 메서드 | 기능                 | URL                    | 인증 필요 | 파라미터 | 요청 데이터                                 | 응답 코드 및 설명                  | 응답 데이터 |
+|----------|--------------------|------------------------|-------|------|----------------------------------------|-----------------------------|--------|
+| GET      | 서버 접속 및 Live 상태 확인 | `/healthCheck`         | NO    | none | none                                   | `200 OK`, `400 Bad Request` | `??`   |
+| POST     | 유저 프로필 이미지 업로드     | `/users/image`         | YES   | none | `"imageUrl" : string, "type" : string` | `200 OK`, `400 Bad Request` | `??`   |
+| DELETE   | 유저 프로필 이미지 삭제      | `/users/image/imageId` | YES   | none | none                                   | `200 OK`, `400 Bad Request` | `??`   |
+
+---
+
+## 1️⃣3️⃣ Lv3-13요구사항 - (전탁 작성 2025.03.14)
+
+### 대용량 데이터 처리
+
+- 대용량 데이터 처리 실습을 위해, 테스트 코드로 유저 데이터를 100만 건 생성할 것.
+  - 데이터 생성 시 닉네임은 랜덤으로 지정
+  - 가급적 동일한 닉네임이 들어가지 않게 설정
+- 닉네임을 조건으로 유저 목록을 검색하는 API를 구현
+  - 닉네임은 정확히 일치해야 검색이 가능함
+- 여러가지 아이디어로 유저 검색 속도를 줄일 것
+  - 조회 속도를 개선할 수 있는 방법을 고민하고, 방법을 구현해볼 것
+  - README.md에 각 방법별 실행 결과를 비교할 수 있도록 최초 조회 속도와 개선 과정 별 조회 속도를 확인할 수 있는 표 또는 이미지 첨부
+
+### 유저 서비스 수정
+
+#### 위치 : [UserService](src/main/java/org/example/expert/domain/user/service/UserService.java)
+- 유저 서비스에 추가로 nickname으로 검색이 가능하게 메서드를 구현함.
+
+### 테스트 데이터 삽입
+
+#### 위치 : [UserDataGenerationTest](src/test/java/org/example/expert/domain/user/controller/UserDataGenerationTest.java)
+- 테스트 데이터를 100만건 삽입을 위 Test 코드를 통해 해주었음.
+
+### 테스트 
+
+#### 위치 : [UserControllerTest](src/test/java/org/example/expert/domain/user/controller/UserControllerTest.java)
+- SpringBootTest를 통해 실제 호출이 몇초가 걸리는지 확인.
+
+
+- Default 조회 시간
+![default_1.png](img/default_1.png)
+![default_2.png](img/default_2.png)
+![default_3.png](img/default_3.png)
+![default_4.png](img/default_4.png)
+- 
+평균 시간 약 **_625ms_**
+
+- index를 사용 하고 난 후 조회 시간
+```sql
+CREATE INDEX idx_nickname ON users (nickname);
+```
+![indexing_1.png](img/indexing_1.png)
+![indexing_2.png](img/indexing_2.png)
+![indexing_3.png](img/indexing_3.png)
+![indexing_4.png](img/indexing_4.png)
+
+평균 시간 약 **_78ms_**
+
+- 결과 : index를 사용함으로서, 약 **8**배 빠르게 조회를 할 수 있게 되었음.
+- 느낀점 : ElasticSearch를 사용하여 비교해보면 더 좋을 것 같다. 하지만 기본적인 조회와 단순 indexing을 하고 난후의 조회 속도의 차이도 무려 8배나 나는 것을 보면서, 100만건 보다 더 많은 데이터의 경우 확실히 최적화를 잘해야겠다는 생각이 들었다. 나중에 기회가 된다면 ElasticSearch도 사용해보고 싶다.
