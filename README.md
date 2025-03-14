@@ -72,7 +72,8 @@
 
 ### 컨트롤러 테스트의 이해
 
-- 테스트 패키지 org.example.expert.domain.todo.controller의 todo_단건_조회_시_todo가_존재하지_않아_예외가_발생한다() 테스트가 실패하고 있으므로, 수정하여 정상 동작하도록 해야 한다.
+- 테스트 패키지 org.example.expert.domain.todo.controller의 todo_단건_조회_시_todo가_존재하지_않아_예외가_발생한다() 테스트가 실패하고 있으므로, 수정하여 정상 동작하도록
+  해야 한다.
 
 ### 해결
 
@@ -80,7 +81,8 @@
 
 - TodoController에 RequestParam으로 weather, start, end 값을 추가함.
 - 해당 값들은 required = false로 입력되지 않으면 null로 처리 됨.
-- TodoService의 getTodos에서 start와 end에 대한 값을 LocalDateTime으로 변환하고 todoRepository에 weather, startDay, endDay 값을 파라미터로 사용하여 요청
+- TodoService의 getTodos에서 start와 end에 대한 값을 LocalDateTime으로 변환하고 todoRepository에 weather, startDay, endDay 값을 파라미터로 사용하여
+  요청
 - TodoRepository에서 JPQL 쿼리를 새로 생성하여 findAllByCondition이라는 이름을 통해 반환.
 
 ---
@@ -112,7 +114,8 @@
 
 #### 위치 : [Todo](src/main/java/org/example/expert/domain/todo/entity/Todo.java)
 
-- managers에서 기존 @OneToMany(mappedBy = "todo") 를 @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL)로 수정하여 manager까지 함께 영속화 시키도록 수정함.
+- managers에서 기존 @OneToMany(mappedBy = "todo") 를 @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL)로 수정하여 manager까지
+  함께 영속화 시키도록 수정함.
 
 ---
 
@@ -170,7 +173,8 @@
 - 먼저 UserRole을 Spring Security에 맞게 변경해주었다.
     - 앞에 prefix로 ROLE_을 붙여 사용할 수 있도록 변경했다.
 - UserAdminController는 Admin만 사용가능하여야 하기 때문에, @Secured(UserRole.Authority.ADMIN)을 사용하여 ADMIN인 유저만 접근 가능하도록 설정해준다.
-- AuthUser에서는 기존 UserRole을 그대로 가져와 사용할 수 없다. Spring Security에서는 역할이 여러개 존재할 수 있다는 가정 하에 코드를 구성해 놓았기 때문에, Collection 형태로 설정했기 때문이다. 따라서 List 형태로 userRole을 반환할 수 있도록 변경해 주었다.
+- AuthUser에서는 기존 UserRole을 그대로 가져와 사용할 수 없다. Spring Security에서는 역할이 여러개 존재할 수 있다는 가정 하에 코드를 구성해 놓았기 때문에, Collection 형태로
+  설정했기 때문이다. 따라서 List 형태로 userRole을 반환할 수 있도록 변경해 주었다.
 - Security 보안을 통과하려면 SecurityContext에 AbstractAuthenticationToken을 set해주어야 하기 때문에,JWTAuthenticationToken을 생성하여 관리한다.
     - 해당 class에서 authUser 정보를 가지고 setAuthenticated를 해준다.
 - Security의 보안을 통과하기 위하여 기존 JwtFilter에 추가로 코드를 넣었다.
@@ -178,4 +182,47 @@
     - setAuthentication에서는 AuthUser를 생성하여 authenticationToken을 만들고, 해당 토큰을 사용하여 setAuthentication 해준다.
 - 위 Spring Security에 대한 필터를 등록하기 위하여 SecurityConfig 클래스를 생성하여 Bean으로 등록해줄 수 있도록 한다.
 
+---
+
+## 🔟 Lv3-10요구사항 - (전탁 작성 2025.03.12)
+
+### QueryDSL을 사용하여 검색 기능 만들기
+
+- 새 API를 통해 만들어야 한다.
+- 검색 조건은 다음을 포함해야 한다.
+    - 일정의 제목으로 검색할 수 있어야 한다.
+        - 일정의 제목은 부분적으로 일치해도 검색이 가능해야 한다.
+    - 일정의 생성일 범위로 검색할 수 있어야 한다.
+        - 생성일 최신순으로 정렬하여 반환하여야 한다.
+    - 담당자의 닉네임으로도 검색이 가능하여야 한다.
+        - 닉네임은 부분적으로 일치해도 검색이 가능하여야 한다.
+    - 검색 결과는 다음 내용을 포함하여 반환하여야 한다.
+        - 일정의 제목
+        - 해당 일정의 담당자 수
+        - 해당 일정의 총 댓글 개수
+    - 검색 결과는 페이징 처리되어 반환되도록 하여야 한다.
+
+### API
+
+| HTTP 메서드 | 기능                  | URL               | 인증 필요 | 파라미터                                                        | 요청 데이터 | 응답 코드 및 설명                  | 응답 데이터                                                                       |
+|----------|---------------------|-------------------|-------|-------------------------------------------------------------|--------|-----------------------------|------------------------------------------------------------------------------|
+| GET      | QueryDSL을 이용한 할일 검색 | `/todos/querydsl` | YES   | Query - String : title, String createdAt, String : nickname | none   | `200 OK`, `400 Bad Request` | `Page 형태의 { "title": string, "managerCount" : long, "commentCount" : long }` |
+
+### 해결
+
+#### 위치 : [TodoController](src/main/java/org/example/expert/domain/todo/controller/TodoController.java), [TodoService](src/main/java/org/example/expert/domain/todo/service/TodoService.java), [TodoSearchResponse](src/main/java/org/example/expert/domain/todo/dto/response/TodoSearchResponse.java), [TodoRepositoryCustomImpl](src/main/java/org/example/expert/domain/todo/repository/TodoRepositoryCustomImpl.java)
+
+- TodoController에 /todos/querydsl 이라는 새 API를 생성한다.
+  - 해당 API에는 쿼리파라미터로 page, size, title, createdAt, nickname이 들어가고, title createdAt, nickname은 없으면 null로 처리되도록 구성하였다.
+- TodoService에도 위 API에 대응되는 메서드를 생성해주었다.
+  - Page형식의 TodoSearchResponse DTO 객체를 반환하는 메서드를 생성하고, todoRepository에 데이터들을 보낸 후 조건에 맞는 데이터를 응답받아 반환한다.
+- TodoSearchResponse에는 todo의 id, title, 담당자 수, 댓글 수를 담을 수 있도록 구성하였다.
+- TodoRepositoryCustomImpl에서 findAllUsingQueryDSL이라는 메서드를 생성해 조건에 따라 쿼리를 처리할 수 있도록 구현 하였다.
+  - 조건에 따른 쿼리를 추가 위한 빌더를 생성하고, 존재하는 조건들을 빌더에 추가해준다.
+  - Projections을 통해 필요한 값들만 가져올 수 있도록 구현하였다.
+  - 조건에 맞는 데이터를 PageImpl을 통해 Page 형식의 객체로 반환해준다.
+
+**추가사항**
+- 이전 Spring Security에서 Controller의 메서드들에서, @Auth에 해당하는 부분을 @AuthenticationPrincipal로 바꾸지 않아 에러가 났었다.
+- 따라서 이번 레벨에서 해당 부분을 수정해 정상작동 할 수 있도록 구현하였다.
 ---
