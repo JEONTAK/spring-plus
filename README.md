@@ -261,6 +261,7 @@
 ## 1️⃣2️⃣ Lv3-12요구사항 - (전탁 작성 2025.03.14)
 
 ### AWS 활용
+[서버 상태](http://15.165.215.181:8080/health)
 
 - EC2, RDS, S3를 사용하여 프로젝트를 관리하고 배포한다.
 - 각 AWS 서비스 간 보안 그룹을 적절히 구성하여 보안에 신경 써야 한다.
@@ -281,11 +282,64 @@
 
 ### API
 
-| HTTP 메서드 | 기능                 | URL                    | 인증 필요 | 파라미터 | 요청 데이터                                 | 응답 코드 및 설명                  | 응답 데이터 |
-|----------|--------------------|------------------------|-------|------|----------------------------------------|-----------------------------|--------|
-| GET      | 서버 접속 및 Live 상태 확인 | `/healthCheck`         | NO    | none | none                                   | `200 OK`, `400 Bad Request` | `??`   |
-| POST     | 유저 프로필 이미지 업로드     | `/users/image`         | YES   | none | `"imageUrl" : string, "type" : string` | `200 OK`, `400 Bad Request` | `??`   |
-| DELETE   | 유저 프로필 이미지 삭제      | `/users/image/imageId` | YES   | none | none                                   | `200 OK`, `400 Bad Request` | `??`   |
+| HTTP 메서드 | 기능                 | URL                   | 인증 필요 | 파라미터 | 요청 데이터                                 | 응답 코드 및 설명                  | 응답 데이터           |
+|----------|--------------------|-----------------------|-------|------|----------------------------------------|-----------------------------|------------------|
+| GET      | 서버 접속 및 Live 상태 확인 | `/health`         | NO    | none | none                                   | `200 OK`, `400 Bad Request` | `시간 + 작동 확인 메시지` |
+| POST     | 유저 프로필 이미지 업로드     | `/users/image`        | YES   | none | `"imageUrl" : string, "type" : string` | `200 OK`, `400 Bad Request` | `??`             |
+| DELETE   | 유저 프로필 이미지 삭제      | `/users/image/imageId` | YES   | none | none                                   | `200 OK`, `400 Bad Request` | `??`             |
+
+
+### 12-1
+1. EC2 인스턴스 정보
+
+![1. EC2 인스턴스 정보.png](img/Lv3-12/1%20ec2인스턴스%20생성/1.%20EC2%20인스턴스%20정보.png)
+![2. EC2 인스턴스 정보.png](img/Lv3-12/1%20ec2인스턴스%20생성/2.%20EC2%20인스턴스%20정보.png)
+
+2. 보안 그룹 설정
+
+![3. 보안 그룹 설정.png](img/Lv3-12/1%20ec2인스턴스%20생성/3.%20보안%20그룹%20설정.png)
+
+3. 탄력적 IP 주소 설정
+
+![4. 탄력적 IP 주소 생성.png](img/Lv3-12/1%20ec2인스턴스%20생성/4.%20탄력적%20IP%20주소%20생성.png)
+
+4. 결과 화면
+
+![5.healthCheck 결과.png](img/Lv3-12/1%20ec2인스턴스%20생성/5.%20healthCheck%20결과.png)
+
+### 12-2
+1. RDS 생성 정보
+
+![1. RDS 생성 정보.png](img/Lv3-12/2%20rds%20생성/1.%20RDS%20생성%20정보.png)
+
+2. RDS 연결 이후 연결 성공
+
+![2. EC2 인스턴스에서 프로젝트 빌드 성공.png](img/Lv3-12/2%20rds%20생성/2.%20ec2%20인스턴스에서%20프로젝트%20빌드%20성공.png)
+
+3. Postman을 통한 회원가입 시도 성공
+
+![3. Postman을 통한 회원가입 시도 성공.png](img/Lv3-12/2%20rds%20생성/3.%20postman%20요청%20성공.png)
+
+### 12-3
+1. Postman을 통한 이미지 추가 성공
+
+![img.png](img/Lv3-12/3%20s3%20생성/1.%20Postman을%20통한%20이미지%20추가%20성공.png)
+
+2. S3 업로드 성공
+
+![img.png](img/Lv3-12/3%20s3%20생성/2.%20S3%20업로드%20성공.png)
+
+3. Postman을 통한 이미지 업데이트
+
+![img.png](img/Lv3-12/3%20s3%20생성/3.%20Postman을%20통한%20이미지%20업데이트.png)
+
+4. S3 삭제 및 업로드 성공
+
+![img.png](img/Lv3-12/3%20s3%20생성/4.%20S3%20삭제%20및%20업로드%20성공.png)
+
+5. 삭제 및 업로드 로그
+
+![img.png](img/Lv3-12/3%20s3%20생성/5.%20삭제%20및%20업로드%20로그.png)
 
 ---
 
@@ -319,10 +373,10 @@
 
 
 - Default 조회 시간
-![default_1.png](img/default_1.png)
-![default_2.png](img/default_2.png)
-![default_3.png](img/default_3.png)
-![default_4.png](img/default_4.png)
+![default_1.png](img/Lv3-13/default_1.png)
+![default_2.png](img/Lv3-13/default_2.png)
+![default_3.png](img/Lv3-13/default_3.png)
+![default_4.png](img/Lv3-13/default_4.png)
 - 
 평균 시간 약 **_625ms_**
 
@@ -330,10 +384,10 @@
 ```sql
 CREATE INDEX idx_nickname ON users (nickname);
 ```
-![indexing_1.png](img/indexing_1.png)
-![indexing_2.png](img/indexing_2.png)
-![indexing_3.png](img/indexing_3.png)
-![indexing_4.png](img/indexing_4.png)
+![indexing_1.png](img/Lv3-13/indexing_1.png)
+![indexing_2.png](img/Lv3-13/indexing_2.png)
+![indexing_3.png](img/Lv3-13/indexing_3.png)
+![indexing_4.png](img/Lv3-13/indexing_4.png)
 
 평균 시간 약 **_78ms_**
 

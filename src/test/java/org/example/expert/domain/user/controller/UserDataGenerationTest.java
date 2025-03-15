@@ -1,25 +1,21 @@
 package org.example.expert.domain.user.controller;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Random;
-import javax.sql.DataSource;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.expert.config.JwtUtil;
+import org.example.expert.config.SecurityConfig;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.annotation.Import;
 
 @SpringBootTest
+@Import({SecurityConfig.class, JwtUtil.class})
 public class UserDataGenerationTest {
 
-    @Autowired
+    /*@Autowired
     private DataSource dataSource;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    /*@Test
+    @Test
     public void generateMillionUsers() throws SQLException {
         long startTime = System.currentTimeMillis();
         try (Connection conn = dataSource.getConnection();

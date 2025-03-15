@@ -40,7 +40,7 @@ class TodoControllerTest {
         // given
         long todoId = 1L;
         String title = "title";
-        AuthUser authUser = new AuthUser(1L, "email", UserRole.ROLE_USER);
+        AuthUser authUser = new AuthUser(1L, "email", "nickname", UserRole.ROLE_USER);
 
         JwtAuthenticationToken authenticationToken = new JwtAuthenticationToken(authUser);
 
@@ -71,7 +71,7 @@ class TodoControllerTest {
     void todo_단건_조회_시_todo가_존재하지_않아_예외가_발생한다() throws Exception {
         // given
         long todoId = 1L;
-        AuthUser authUser = new AuthUser(1L, "email", UserRole.ROLE_USER);
+        AuthUser authUser = new AuthUser(1L, "email", "nickname", UserRole.ROLE_USER);
         JwtAuthenticationToken authenticationToken = new JwtAuthenticationToken(authUser);
 
         // when
