@@ -41,6 +41,8 @@ public class SecurityConfig {
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(request -> request.getRequestURI().startsWith("/auth")).permitAll()
+                        .requestMatchers(request -> request.getRequestURI().startsWith("/health")).permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(request -> request.getRequestURI().startsWith("/admin")).authenticated()
                         .anyRequest().authenticated()
                 )

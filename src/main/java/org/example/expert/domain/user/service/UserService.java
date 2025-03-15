@@ -2,8 +2,11 @@ package org.example.expert.domain.user.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
+import org.example.expert.domain.common.service.S3Service;
 import org.example.expert.domain.user.dto.request.UserChangePasswordRequest;
+import org.example.expert.domain.user.dto.response.UserImageResponse;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.dto.response.UserSearchResponse;
 import org.example.expert.domain.user.entity.User;
@@ -11,6 +14,7 @@ import org.example.expert.domain.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
 
     public UserResponse getUser(long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new InvalidRequestException("User not found"));
@@ -52,9 +57,29 @@ public class UserService {
         }
     }
 
-    @Transactional(readOnly = true)
     public List<UserSearchResponse> findUsersByNickname(String nickname) {
         return userRepository.findByNickname(nickname).stream()
                 .map(user -> new UserSearchResponse(user.getId(), user.getEmail(), user.getNickname())).toList();
+    }
+
+    @Transactional
+    public UserImageResponse updateImage(AuthUser authUser, MultipartFile userImageRequest) {
+        User user = userRepository.findById(authUser.getId()).orElseThrow(() -> new InvalidRequestException("User not found"));
+
+        if(userImageRequest.getName().isBlank()){
+            throw new InvalidRequestException("이미지는 필수 값입니다.");
+        }
+
+        if (!user.getImageUrl().isEmpty()) {
+            s3Service.delete(getImage(user.getImageUrl()));
+        }
+        String uploadUrl = s3Service.upload(userImageRequest);
+        user.updateImage(uploadUrl);
+
+        return new UserImageResponse(user.getId(), user.getEmail(), user.getNickname(), user.getImageUrl());
+    }
+
+    private String getImage(String profileUrl) {
+        return profileUrl.substring(profileUrl.lastIndexOf("/") + 1);
     }
 }
