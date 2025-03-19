@@ -1,0 +1,24 @@
+package org.example.expert.domain.todo.dto.response
+
+import org.example.expert.domain.todo.entity.Todo
+import org.example.expert.domain.user.dto.response.UserResponse
+
+data class TodoSaveResponse(
+    val id: Long,
+    val title: String,
+    val contents: String,
+    val weather: String,
+    val user: UserResponse
+){
+    companion object{
+        fun of(todo: Todo, userResponse: UserResponse): TodoSaveResponse {
+            return TodoSaveResponse(
+                todo.id,
+                todo.title,
+                todo.contents,
+                todo.weather,
+                userResponse
+            )
+        }
+    }
+}
