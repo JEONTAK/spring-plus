@@ -10,7 +10,7 @@
 
 - **작성자** : 전탁
 - **작성일** : 2025.03.13 (목)
-- **수정일** : 2025.03.14 (금)
+- **수정일** : 2025.03.19 (목)
 
 ---
 
@@ -261,6 +261,7 @@
 ## 1️⃣2️⃣ Lv3-12요구사항 - (전탁 작성 2025.03.14)
 
 ### AWS 활용
+
 [서버 상태](http://15.165.215.181:8080/health)
 
 - EC2, RDS, S3를 사용하여 프로젝트를 관리하고 배포한다.
@@ -282,14 +283,13 @@
 
 ### API
 
-| HTTP 메서드 | 기능                 | URL                   | 인증 필요 | 파라미터 | 요청 데이터                                 | 응답 코드 및 설명                  | 응답 데이터           |
-|----------|--------------------|-----------------------|-------|------|----------------------------------------|-----------------------------|------------------|
-| GET      | 서버 접속 및 Live 상태 확인 | `/health`         | NO    | none | none                                   | `200 OK`, `400 Bad Request` | `시간 + 작동 확인 메시지` |
-| POST     | 유저 프로필 이미지 업로드     | `/users/image`        | YES   | none | `"imageUrl" : string, "type" : string` | `200 OK`, `400 Bad Request` | `??`             |
-| DELETE   | 유저 프로필 이미지 삭제      | `/users/image/imageId` | YES   | none | none                                   | `200 OK`, `400 Bad Request` | `??`             |
-
+| HTTP 메서드 | 기능                  | URL             | 인증 필요 | 파라미터 | 요청 데이터                    | 응답 코드 및 설명                  | 응답 데이터                                                                       |
+|----------|---------------------|-----------------|-------|------|---------------------------|-----------------------------|------------------------------------------------------------------------------|
+| GET      | 서버 접속 및 Live 상태 확인  | `/health`       | NO    | none | none                      | `200 OK`, `400 Bad Request` | `시간 + 작동 확인 메시지`                                                             |
+| POST     | 유저 프로필 이미지 업로드 및 수정 | `/users/images` | YES   | none | `"image" : MultiPartFile` | `200 OK`, `400 Bad Request` | `{ "id" : Long, "email" : string, "nickname" : string, "imageUrl" : string}` |
 
 ### 12-1
+
 1. EC2 인스턴스 정보
 
 ![1. EC2 인스턴스 정보.png](img/Lv3-12/1%20ec2인스턴스%20생성/1.%20EC2%20인스턴스%20정보.png)
@@ -308,6 +308,7 @@
 ![5.healthCheck 결과.png](img/Lv3-12/1%20ec2인스턴스%20생성/5.%20healthCheck%20결과.png)
 
 ### 12-2
+
 1. RDS 생성 정보
 
 ![1. RDS 생성 정보.png](img/Lv3-12/2%20rds%20생성/1.%20RDS%20생성%20정보.png)
@@ -321,6 +322,7 @@
 ![3. Postman을 통한 회원가입 시도 성공.png](img/Lv3-12/2%20rds%20생성/3.%20postman%20요청%20성공.png)
 
 ### 12-3
+
 1. Postman을 통한 이미지 추가 성공
 
 ![img.png](img/Lv3-12/3%20s3%20생성/1.%20Postman을%20통한%20이미지%20추가%20성공.png)
@@ -348,42 +350,48 @@
 ### 대용량 데이터 처리
 
 - 대용량 데이터 처리 실습을 위해, 테스트 코드로 유저 데이터를 100만 건 생성할 것.
-  - 데이터 생성 시 닉네임은 랜덤으로 지정
-  - 가급적 동일한 닉네임이 들어가지 않게 설정
+    - 데이터 생성 시 닉네임은 랜덤으로 지정
+    - 가급적 동일한 닉네임이 들어가지 않게 설정
 - 닉네임을 조건으로 유저 목록을 검색하는 API를 구현
-  - 닉네임은 정확히 일치해야 검색이 가능함
+    - 닉네임은 정확히 일치해야 검색이 가능함
 - 여러가지 아이디어로 유저 검색 속도를 줄일 것
-  - 조회 속도를 개선할 수 있는 방법을 고민하고, 방법을 구현해볼 것
-  - README.md에 각 방법별 실행 결과를 비교할 수 있도록 최초 조회 속도와 개선 과정 별 조회 속도를 확인할 수 있는 표 또는 이미지 첨부
+    - 조회 속도를 개선할 수 있는 방법을 고민하고, 방법을 구현해볼 것
+    - README.md에 각 방법별 실행 결과를 비교할 수 있도록 최초 조회 속도와 개선 과정 별 조회 속도를 확인할 수 있는 표 또는 이미지 첨부
 
 ### 유저 서비스 수정
 
 #### 위치 : [UserService](src/main/java/org/example/expert/domain/user/service/UserService.java)
+
 - 유저 서비스에 추가로 nickname으로 검색이 가능하게 메서드를 구현함.
 
 ### 테스트 데이터 삽입
 
 #### 위치 : [UserDataGenerationTest](src/test/java/org/example/expert/domain/user/controller/UserDataGenerationTest.java)
+
 - 테스트 데이터를 100만건 삽입을 위 Test 코드를 통해 해주었음.
 
-### 테스트 
+### 테스트
 
 #### 위치 : [UserControllerTest](src/test/java/org/example/expert/domain/user/controller/UserControllerTest.java)
+
 - SpringBootTest를 통해 실제 호출이 몇초가 걸리는지 확인.
 
 
 - Default 조회 시간
-![default_1.png](img/Lv3-13/default_1.png)
-![default_2.png](img/Lv3-13/default_2.png)
-![default_3.png](img/Lv3-13/default_3.png)
-![default_4.png](img/Lv3-13/default_4.png)
-- 
+  ![default_1.png](img/Lv3-13/default_1.png)
+  ![default_2.png](img/Lv3-13/default_2.png)
+  ![default_3.png](img/Lv3-13/default_3.png)
+  ![default_4.png](img/Lv3-13/default_4.png)
+-
+
 평균 시간 약 **_625ms_**
 
 - index를 사용 하고 난 후 조회 시간
+
 ```sql
 CREATE INDEX idx_nickname ON users (nickname);
 ```
+
 ![indexing_1.png](img/Lv3-13/indexing_1.png)
 ![indexing_2.png](img/Lv3-13/indexing_2.png)
 ![indexing_3.png](img/Lv3-13/indexing_3.png)
@@ -392,4 +400,35 @@ CREATE INDEX idx_nickname ON users (nickname);
 평균 시간 약 **_78ms_**
 
 - 결과 : index를 사용함으로서, 약 **8**배 빠르게 조회를 할 수 있게 되었음.
-- 느낀점 : ElasticSearch를 사용하여 비교해보면 더 좋을 것 같다. 하지만 기본적인 조회와 단순 indexing을 하고 난후의 조회 속도의 차이도 무려 8배나 나는 것을 보면서, 100만건 보다 더 많은 데이터의 경우 확실히 최적화를 잘해야겠다는 생각이 들었다. 나중에 기회가 된다면 ElasticSearch도 사용해보고 싶다.
+- 느낀점 : ElasticSearch를 사용하여 비교해보면 더 좋을 것 같다. 하지만 기본적인 조회와 단순 indexing을 하고 난후의 조회 속도의 차이도 무려 8배나 나는 것을 보면서, 100만건 보다 더 많은
+  데이터의 경우 확실히 최적화를 잘해야겠다는 생각이 들었다. 나중에 기회가 된다면 ElasticSearch도 사용해보고 싶다.
+
+---
+
+## 1️⃣4️⃣ Lv4-14요구사항 - (전탁 작성 2025.03.19)
+
+### Entity 및 Repository CRUD 리팩토링(Kotlin)
+
+- Java로 작성된 Entity 및 CRUD 메서드를 Kotlin으로 리팩토링 한다.
+    - 프로젝트 세팅 후, Entity, CRUD 요소를 "작게" 리팩토링한다.
+- 작성자는 Todo Domain에 대한 내용만 일단 Kotlin으로 리팩토링 하기로 결정.
+    - Nullable 및 Non-Nullable 필드를 정확히 정의하고 데이터 클래스를 사용할 것
+    - 기본 생성자 및 데이터 클래스에서의 copy() 메서드 활용할 것
+    - 기본 CrudRepository 또는 JpaRepository 활용할 것
+    - QueryDSL을 활용할 것
+    - Lombok을 사용했다면, Kotlin의 기본 기능으로 대체할 것
+
+### 해결
+
+#### 위치 : feat/lv4 브랜치에 리팩토링 내용 PUSH (Todo Domain)
+
+- Entity
+  - data class가 아닌 기본 class 사용
+  - 생성자에 column 값들 넣어 구현
+  - init 통해 생성시 manager도 추가될 수 있도록 구현
+- Service
+- Controller
+- Repository
+- Dto
+  - data class 사용하여 구현
+  - companion object 사용하여 static method 활용할 수 있게 구현
